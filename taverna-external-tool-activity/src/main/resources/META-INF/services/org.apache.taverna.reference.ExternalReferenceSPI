@@ -1,0 +1,2 @@
+# Implementation classes of ExternalReferenceSPI go here, one per line
+org.apache.taverna.activities.externaltool.ssh.SshReference

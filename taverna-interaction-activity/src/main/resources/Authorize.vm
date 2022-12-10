@@ -1,0 +1,90 @@
+#*    
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*#
+
+#produce("answer")
+<!doctype html>
+<html>
+  <head>
+      <meta charset="utf-8" />
+      <title></title>
+      <style>
+      	html, body { height: 100%; width: 100%; margin: 0; }
+      </style>
+  </head>
+  <body>
+
+       <script type="text/javascript" src="$pmrpcUrl"></script>
+
+       <script type="text/javascript">
+       
+       var sites = {};
+
+#foreach( $value in $loginSites )
+      sites["${value.getName()}"] = "${value.getAuthorizeUrl(${interactionUrl})}";
+#end
+       
+       function forward() {
+         var chosenSiteName = document.myform.mySelect.options[document.myform.mySelect.selectedIndex].value;
+         window.open(sites[chosenSiteName]);
+       }
+       
+           function reply(token) {
+           pmrpc.call({
+             destination : "publish",
+             publicProcedureName : "reply",
+             params : ["OK", {"answer" : token}],
+             onSuccess : function() {document.getElementsByTagName('body')[0].innerHTML='<h1>Data submitted</h1>';},
+             onFailure: function() {document.getElementsByTagName('body')[0].innerHTML='<h1>Data submission failed</h1>';}
+           });
+         }
+ 
+          function considerReply() {
+            pmrpc.call({
+              destination : "publish",
+              publicProcedureName : "getParameterValue",
+              params: ["oauth_token"],
+              onSuccess : function(retVal) { if ((retVal.returnValue != null) && (retVal.returnValue != '')) { reply(retVal.returnValue);}}
+           });
+         }
+                  
+         function cancel() {
+           pmrpc.call({
+             destination : "publish",
+             publicProcedureName : "reply",
+             params : ["Cancelled", {}],
+             onSuccess : function() {document.getElementsByTagName('body')[0].innerHTML='<h1>Cancelled</h1>';},
+             onFailure: function() {document.getElementsByTagName('body')[0].innerHTML='<h1>Cancellation failed</h1>';}
+           });
+	       return true;
+         }
+         
+         window.onload = considerReply();
+       </script>
+  
+  <h2>Please select an authentication site</h2>
+      <form name="myform" onSubmit="forward(); return false;">
+      <select name="mySelect">
+#foreach( $value in $loginSites )
+      <option value="$value.getName()">$value.getName()</option>
+#end
+      </select><br />
+      <input type="button" value="Cancel" onClick = "cancel()"/>
+      <input type="button" value="Submit" onClick = "forward()"/>
+    </form> 
+  </body>
+</html>
+

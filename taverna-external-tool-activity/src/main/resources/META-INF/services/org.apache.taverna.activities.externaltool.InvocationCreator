@@ -1,0 +1,2 @@
+org.apache.taverna.activities.externaltool.local.LocalInvocationCreator
+org.apache.taverna.activities.externaltool.ssh.SshInvocationCreator

@@ -1,0 +1,2 @@
+org.apache.taverna.activities.externaltool.local.LocalInvocationPersister
+org.apache.taverna.activities.externaltool.ssh.SshInvocationPersister
